@@ -3,6 +3,7 @@
 import { fetchNotes } from '@/lib/api';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import NotesByCategoryClient from './Notes.client';
+import { Metadata } from 'next';
 
 // /notes виконується Notes на сервері
 // виконується queryClient.prefetchQuery
@@ -14,6 +15,39 @@ import NotesByCategoryClient from './Notes.client';
 
 type Props = {
   params: Promise<{ slug: string[] }>;
+};
+
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+  const { slug } = await params;
+
+  const category = slug[0] === 'all' ? undefined : slug[0];
+
+  const filterLabel = category || 'all';
+
+  const title = `${filterLabel} | NoteHub`;
+  const description = `View notes filtered by category: ${filterLabel}.`;
+
+  // Читаємо адресу з .env або беремо localhost
+  const baseUrl = process.env.OG_NOTES_URL || 'http://localhost:3000';
+
+  return {
+    title,
+    description,
+
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/notes/filter/${filterLabel}`,
+      images: [
+        {
+          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          width: 1200,
+          height: 600,
+          alt: `Filter: ${filterLabel}`,
+        },
+      ],
+    },
+  };
 };
 
 export default async function NotesByCategory({ params }: Props) {
