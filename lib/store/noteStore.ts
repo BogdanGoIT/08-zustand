@@ -1,20 +1,15 @@
-import { NoteTag } from '@/types/note';
+import { CreateNoteProps } from '@/types/note';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-type FormValue = {
-  title?: string;
-  content?: string;
-  tag?: NoteTag;
-};
+// 1. Імпортуємо функцію
 
 type NoteState = {
-  draft: FormValue;
-  setDraft: (note: FormValue) => void;
+  draft: CreateNoteProps;
+  setDraft: (note: CreateNoteProps) => void;
   clearDraft: () => void;
 };
 
-const initialDraft: FormValue = {
+const initialDraft: CreateNoteProps = {
   title: '',
   content: '',
   tag: 'Todo',
@@ -23,19 +18,16 @@ const initialDraft: FormValue = {
 export const useNoteStore = create<NoteState>()(
   persist(
     set => ({
+      // 2. Обгортаємо функцію створення стора
       draft: initialDraft,
-
-      // Функція для оновлення полів (використовуємо спред ..., щоб оновлювати частинами)
-      setDraft: note =>
-        set(state => ({
-          draft: { ...state.draft, ...note },
-        })),
-
-      // Функція для очищення до початкового стану
-      clearDraft: () => set({ draft: initialDraft }),
+      setDraft: note => set(() => ({ draft: note })),
+      clearDraft: () => set(() => ({ draft: initialDraft })),
     }),
     {
-      name: 'note-draft-storage', // назва ключа в localStorage
+      // Ключ у localStorage
+      name: 'note-draft',
+      // Зберігаємо лише властивість draft
+      partialize: state => ({ draft: state.draft }),
     }
   )
 );

@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Og NoteHub',
     description: 'Og next NoteHub',
+    url: process.env.OG_NOTES_URL || 'http://localhost:3000',
     images: [
       {
         url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',

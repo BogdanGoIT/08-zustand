@@ -10,6 +10,8 @@ import css from './NoteForm.module.css';
 import type { NoteTag } from '../../types/note';
 import { createNote } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+
+// 1. Імпортуємо хук
 import { useNoteStore } from '@/lib/store/noteStore';
 
 // interface NoteFormProps {
@@ -29,13 +31,19 @@ import { useNoteStore } from '@/lib/store/noteStore';
 // };
 
 export default function NoteForm() {
-  // const { draft, setDraft, clearDraft } = useNoteStore();
-  const title = useNoteStore(state => state.draft.title);
-  const content = useNoteStore(state => state.draft.content);
-  const tag = useNoteStore(state => state.draft.tag);
-  const setDraft = useNoteStore(state => state.setDraft);
-  const clearDraft = useNoteStore(state => state.clearDraft);
+  // 2. Викликаємо хук і отримуємо значення
+  const { draft, setDraft, clearDraft } = useNoteStore();
 
+  // 3. Оголошуємо функцію для onChange щоб при зміні будь-якого елемента форми оновити чернетку нотатки в сторі
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    // 4. Коли користувач змінює будь-яке поле форми — оновлюємо стан
+    setDraft({
+      ...draft,
+      [event.target.name]: event.target.value,
+    });
+  };
   const router = useRouter();
 
   const handleCancel = () => {
@@ -61,6 +69,9 @@ export default function NoteForm() {
     });
   };
 
+  // 6. До кожного елемента додаємо defaultValue та onChange
+  // щоб задати початкове значення із чернетки
+  // та при зміні оновити чернетку в сторі
   return (
     <form action={handleSubmit} className={css.form}>
       <div className={css.formGroup}>
@@ -70,8 +81,8 @@ export default function NoteForm() {
           type="text"
           name="title"
           className={css.input}
-          value={title}
-          onChange={e => setDraft({ title: e.target.value })}
+          value={draft?.title}
+          onChange={handleChange}
         />
         <span className={css.error}></span>
       </div>
@@ -83,8 +94,8 @@ export default function NoteForm() {
           name="content"
           rows={8}
           className={css.textarea}
-          value={content}
-          onChange={e => setDraft({ content: e.target.value })}
+          defaultValue={draft?.content}
+          onChange={handleChange}
         />
       </div>
 
@@ -94,8 +105,8 @@ export default function NoteForm() {
           id="tag"
           name="tag"
           className={css.select}
-          value={tag}
-          onChange={e => setDraft({ tag: e.target.value as NoteTag })}
+          defaultValue={draft?.tag}
+          onChange={handleChange}
         >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
